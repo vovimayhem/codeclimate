@@ -5,25 +5,32 @@ require "safe_yaml"
 module CC
   module CLI
     class Runner
+      attr_reader :logger
+
       def self.run(argv)
         new(argv).run
       rescue => ex
         $stderr.puts("error: (#{ex.class}) #{ex.message}")
 
-        if ENV["CODECLIMATE_DEBUG"]
+        if verbose?(argv)
           $stderr.puts("backtrace: #{ex.backtrace.join("\n\t")}")
         end
+      end
+
+      def self.verbose?(argv)
+        argv.include?("-v") || argv.include?("--verbose")
       end
 
       def initialize(args)
         SafeYAML::OPTIONS[:default_mode] = :safe
 
         @args = args
+        build_logger
       end
 
       def run
         if command_class
-          command = command_class.new(command_arguments)
+          command = command_class.new(command_arguments, logger)
           command.execute
         else
           command_not_found
@@ -31,7 +38,7 @@ module CC
       end
 
       def command_not_found
-        $stderr.puts "unknown command #{command}"
+        logger.error "unknown command #{command}"
         exit 1
       end
 
@@ -55,6 +62,13 @@ module CC
 
       def command
         @args.first
+      end
+
+      private
+
+      def build_logger
+        @logger = TerminalLogger.new
+        @logger.level = Logger::DEBUG if self.class.verbose?(@args)
       end
     end
   end

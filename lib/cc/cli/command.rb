@@ -8,12 +8,15 @@ module CC
     class Command
       CODECLIMATE_YAML = ".codeclimate.yml".freeze
 
-      def initialize(args = [])
+      attr_reader :logger
+
+      def initialize(args = [], logger = TerminalLogger.new)
         @args = args
+        @logger = logger
       end
 
       def run
-        $stderr.puts "unknown command #{self.class.name.split('::').last.underscore}"
+        logger.error("unknown command #{self.class.name.split('::').last.underscore}")
       end
 
       def self.command_name
@@ -25,19 +28,19 @@ module CC
       end
 
       def success(message)
-        terminal.say colorize(message, :green)
+        say(colorize(message, :green))
       end
 
       def say(message)
-        terminal.say message
+        logger.info(message)
       end
 
       def warn(message)
-        terminal.say(colorize("WARNING: #{message}", :yellow))
+        say(colorize("WARNING: #{message}", :yellow))
       end
 
       def fatal(message)
-        $stderr.puts colorize(message, :red)
+        logger.fatal(colorize(message, :red))
         exit 1
       end
 

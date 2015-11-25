@@ -3,7 +3,7 @@ module CC
     class Analyze < Command
       include CC::Analyzer
 
-      def initialize(_args = [])
+      def initialize(_args = [], _logger = TerminalLogger.new)
         super
         @engine_options = []
         @path_options = []

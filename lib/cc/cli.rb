@@ -12,6 +12,7 @@ module CC
     autoload :Help, "cc/cli/help"
     autoload :Init, "cc/cli/init"
     autoload :Runner, "cc/cli/runner"
+    autoload :TerminalLogger, "cc/cli/terminal_logger"
     autoload :Test, "cc/cli/test"
     autoload :ValidateConfig, "cc/cli/validate_config"
     autoload :Version, "cc/cli/version"
