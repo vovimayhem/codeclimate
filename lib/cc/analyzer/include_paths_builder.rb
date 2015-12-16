@@ -9,7 +9,7 @@ module CC
 
       attr_reader :cc_include_paths
 
-      def initialize(cc_exclude_paths, cc_include_paths = [])
+      def initialize(cc_exclude_paths, cc_include_paths = [], logger = TerminalLogger.new)
         @cc_exclude_paths = cc_exclude_paths
         @cc_include_paths = cc_include_paths
       end
