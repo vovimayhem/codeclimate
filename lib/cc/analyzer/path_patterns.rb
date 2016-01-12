@@ -19,7 +19,7 @@ module CC
       def expand
         results = Dir.chdir(@root) do
           @patterns.flat_map do |pattern|
-            value = glob_value(pattern)
+            value = optimize_glob(glob_value(pattern))
             Dir.glob(value)
           end
         end
@@ -37,6 +37,14 @@ module CC
         # all objects, apparently.
         if pattern.is_a?(CC::Yaml::Nodes::Glob)
           pattern.value
+        else
+          pattern
+        end
+      end
+
+      def optimize_glob(pattern)
+        if pattern.ends_with?("/**/*")
+          pattern[0..-5]
         else
           pattern
         end
