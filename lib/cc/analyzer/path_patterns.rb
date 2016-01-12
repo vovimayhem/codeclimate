@@ -2,6 +2,7 @@ module CC
   module Analyzer
     class PathPatterns
       def initialize(patterns, root = Dir.pwd)
+        $stderr.puts("DEBUG: PathPatterns: initialize:\n\tpatterns = #{patterns.inspect}\n\troot = #{root}")
         @patterns = patterns
         @root = root
       end
@@ -24,6 +25,7 @@ module CC
           end
         end
 
+        $stderr.puts("DEBUG: PathPatterns: #expand results = #{results.sort.uniq.inspect}")
         results.sort.uniq
       end
 

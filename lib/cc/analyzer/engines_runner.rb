@@ -32,6 +32,7 @@ module CC
       attr_reader :requested_paths
 
       def build_engine(built_config)
+        $stderr.puts("DEBUG: EnginesRunner: #build_engine")
         Engine.new(
           built_config.name,
           built_config.registry_entry,
@@ -42,6 +43,7 @@ module CC
       end
 
       def configs
+        $stderr.puts("DEBUG: EnginesRunner: #configs")
         EnginesConfigBuilder.new(
           registry: @registry,
           config: @config,
@@ -52,10 +54,12 @@ module CC
       end
 
       def engines
+        $stderr.puts("DEBUG: EnginesRunner: #engines")
         @engines ||= configs.map { |result| build_engine(result) }
       end
 
       def run_engine(engine, container_listener)
+        $stderr.puts("DEBUG: EnginesRunner: #run_engine")
         @formatter.engine_running(engine) do
           engine.run(@formatter, container_listener)
         end

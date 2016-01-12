@@ -20,6 +20,7 @@ module CC
       end
 
       def run
+        $stderr.puts("DEBUG: EnginesCOnfigBuilder: #run")
         names_and_raw_engine_configs.map do |name, raw_engine_config|
           label = @container_label || SecureRandom.uuid
           engine_config = engine_config(raw_engine_config)
@@ -47,6 +48,7 @@ module CC
       end
 
       def names_and_raw_engine_configs
+        $stderr.puts("DEBUG: EnginesCOnfigBuilder: names_and_raw_engine_configs")
         {}.tap do |ret|
           (@config.engines || {}).each do |name, raw_engine_config|
             if raw_engine_config.enabled? && @registry.key?(name)
@@ -57,15 +59,18 @@ module CC
       end
 
       def include_paths
+        $stderr.puts("DEBUG: EnginesCOnfigBuilder: include_paths")
         IncludePathsBuilder.new(exclude_paths, Array(@requested_paths)).build
       end
 
       def exclude_paths
+        $stderr.puts("DEBUG: EnginesCOnfigBuilder: exclude_paths")
         PathPatterns.new(@config.exclude_paths || []).expanded +
           gitignore_paths
       end
 
       def gitignore_paths
+        $stderr.puts("DEBUG: EnginesCOnfigBuilder: gitignore_paths")
         if File.exist?(".gitignore")
           `git ls-files --others -i -z --exclude-from .gitignore`.split("\0")
         else

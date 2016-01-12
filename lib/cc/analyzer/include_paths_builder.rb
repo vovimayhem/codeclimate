@@ -1,4 +1,4 @@
-require "file_utils_ext"
+Require "file_utils_ext"
 require "cc/analyzer/path_minimizer"
 require "cc/analyzer/path_filter"
 
@@ -10,6 +10,7 @@ module CC
       attr_reader :cc_include_paths
 
       def initialize(cc_exclude_paths, cc_include_paths = [])
+        $stderr.puts("DEBUG: IncludePathsBuilder #initialize\n\tcc_exclude = #{cc_exclude_paths.inspect}\n\tcc_include=#{cc_include_paths.inspect}")
         @cc_exclude_paths = cc_exclude_paths
         @cc_include_paths = cc_include_paths
       end
@@ -31,6 +32,7 @@ module CC
 
       def include_paths
         if @cc_include_paths.empty?
+          $stderr.puts("DEBUG: include_paths will be all_paths (expanded)")
           all_paths
         else
           @cc_include_paths.flat_map do |path|
@@ -54,6 +56,7 @@ module CC
           tmp.close
           tracked_and_ignored = `git ls-files -zi -X #{tmp.path} 2>/dev/null`.split("\0")
           untracked_and_ignored = `git ls-files -zio -X #{tmp.path} 2>/dev/null`.split("\0")
+          $stderr.puts("DEBUG: IncludePathsBuilder #ignored_files = #{tmp.open.read.inspect}")
           @_ignored_files = tracked_and_ignored + untracked_and_ignored
         end
       end

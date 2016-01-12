@@ -13,10 +13,14 @@ module CC
       end
 
       def run
+        $stderr.puts("DEBUG: analyze command #run: about to require cc yaml")
         require_codeclimate_yml
 
+        $stderr.puts("DEBUG: analyze command #run: about to chdir to code dir")
         Dir.chdir(ENV["FILESYSTEM_DIR"]) do
+          $stderr.puts("DEBUG: analyze command #run: will construct engine runner")
           runner = EnginesRunner.new(registry, formatter, source_dir, config, path_options)
+          $stderr.puts("DEBUG: analyze command #run: will run runner")
           runner.run
         end
 
