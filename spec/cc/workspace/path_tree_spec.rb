@@ -64,6 +64,29 @@ class CC::Workspace
       end
     end
 
+    describe "#include?" do
+      it "finds if a path is included in the tree" do
+        within_temp_dir do
+          make_fixture_tree
+
+          tree = PathTree.new(".")
+          tree.include?("code/a").must_equal true
+          tree.include?("code/a/bar.rb").must_equal true
+          tree.include?("code/nope").must_equal false
+        end
+      end
+
+      it "accounts for excluded files" do
+        within_temp_dir do
+          make_fixture_tree
+
+          tree = PathTree.new(".")
+          tree.exclude_paths(["code/"])
+          tree.include?("code/a").must_equal false
+        end
+      end
+    end
+
     def make_fixture_tree
       make_tree <<-EOM
         .git/FETCH_HEAD

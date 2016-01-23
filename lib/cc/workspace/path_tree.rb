@@ -29,6 +29,10 @@ module CC
         paths.each { |path| add(*normalized_path_pieces(path)) }
       end
 
+      def include?(path)
+        include_pieces?(*normalized_path_pieces(path))
+      end
+
       def all_paths
         if populated?
           children.values.flat_map(&:all_paths)
@@ -61,6 +65,22 @@ module CC
           children[entry.basename.to_s].add(*tail)
         else
           CLI.debug("Couldn't include because part of path doesn't exist.", path: File.join(root_path, head))
+        end
+      end
+
+      def include_pieces?(head = nil, *tail)
+        return false if head.nil? && tail.empty?
+
+        child = if populated?
+          children[head]
+        else
+          c = find_direct_child(head)
+          self.class.create(c) if c
+        end
+        if child.present? && tail.present?
+          child.include_pieces?(*tail)
+        else
+          child.present?
         end
       end
 
