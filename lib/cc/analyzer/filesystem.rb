@@ -1,6 +1,8 @@
 module CC
   module Analyzer
     class Filesystem
+      attr_reader :root
+
       def initialize(root)
         @root = root
       end
@@ -45,7 +47,7 @@ module CC
       end
 
       def path_for(path)
-        File.join(@root, path)
+        File.join(root, path)
       end
 
       def root_uid
@@ -57,7 +59,7 @@ module CC
       end
 
       def root_stat
-        @root_stat ||= File.stat(@root)
+        @root_stat ||= File.stat(root)
       end
     end
   end

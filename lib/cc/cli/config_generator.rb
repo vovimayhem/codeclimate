@@ -37,7 +37,7 @@ module CC
       end
 
       def exclude_paths
-        AUTO_EXCLUDE_PATHS.select { |path| filesystem.exist?(path) }
+        @exclude_paths ||= AUTO_EXCLUDE_PATHS.select { |path| filesystem.exist?(path) }
       end
 
       def post_generation_verb
@@ -58,9 +58,15 @@ module CC
         !engine["community"] && engine["enable_regexps"].present? && files_exist?(engine)
       end
 
+      def workspace
+        @workspace ||= CC::Workspace.new(CC::Workspace::PathTree.new(filesystem.root)).tap do |w|
+          w.remove(exclude_paths)
+        end
+      end
+
       def files_exist?(engine)
-        filesystem.any? do |path|
-          engine["enable_regexps"].any? { |re| Regexp.new(re).match(path) }
+        workspace.any? do |path|
+          engine["enable_regexps"].any? { |re| Regexp.new(re).match(path.cleanpath.to_s) }
         end
       end
     end
