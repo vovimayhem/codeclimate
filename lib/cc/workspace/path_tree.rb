@@ -1,6 +1,3 @@
-require "pathname"
-require "set"
-
 module CC
   class Workspace
     class PathTree

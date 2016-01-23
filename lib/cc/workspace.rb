@@ -1,7 +1,12 @@
+require "pathname"
+
 module CC
   class Workspace
     autoload :Exclusion, "cc/workspace/exclusion"
     autoload :PathTree, "cc/workspace/path_tree"
+    autoload :PathEnumerator, "cc/workspace/path_enumerator"
+
+    include Enumerable
 
     def initialize(path_tree = PathTree.new("."))
       @path_tree = path_tree
@@ -9,6 +14,15 @@ module CC
 
     def clone
       self.class.new(path_tree.clone)
+    end
+
+    def each
+      enum = PathEnumerator.new(path_tree).to_enum
+      if block_given?
+        enum.each { |item| yield item }
+      else
+        enum
+      end
     end
 
     def paths

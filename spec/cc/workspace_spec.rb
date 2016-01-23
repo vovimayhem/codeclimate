@@ -188,5 +188,20 @@ module CC
         end
       end
     end
+
+    describe "Enumerable" do
+      it "acts like enumerable" do
+        within_temp_dir do
+          make_tree <<-EOM
+            foo.rb
+            bar.rb
+            other/stuff.txt
+          EOM
+
+          workspace = Workspace.new
+          workspace.each.count.must_equal 5
+        end
+      end
+    end
   end
 end
