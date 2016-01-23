@@ -82,7 +82,6 @@ class CC::Workspace
 
           tree = PathTree.new(".")
           tree.exclude_paths(["code/"])
-          $stderr.puts "tree is #{tree.inspect}"
           tree.include?("code/a").must_equal false
         end
       end

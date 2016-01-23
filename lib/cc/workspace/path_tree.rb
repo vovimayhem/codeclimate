@@ -68,11 +68,16 @@ module CC
       def include_pieces?(head = nil, *tail)
         return false if head.nil? && tail.empty?
 
-        entry = find_direct_child(head)
-        if entry.present? && tail.present?
-          self.class.create(entry).include_pieces?(*tail)
+        child = if populated?
+          children[head]
         else
-          entry.present?
+          c = find_direct_child(head)
+          self.class.create(c) if c
+        end
+        if child.present? && tail.present?
+          child.include_pieces?(*tail)
+        else
+          child.present?
         end
       end
 
