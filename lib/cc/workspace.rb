@@ -16,6 +16,10 @@ module CC
       self.class.new(path_tree.clone)
     end
 
+    def include?(path)
+      path_tree.include?(path)
+    end
+
     def each
       enum = PathEnumerator.new(path_tree).to_enum
       if block_given?

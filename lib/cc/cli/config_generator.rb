@@ -24,10 +24,12 @@ module CC
       def eligible_engines
         return @eligible_engines if @eligible_engines
 
-        engines = engine_registry.list
-        @eligible_engines = engines.each_with_object({}) do |(name, config), result|
-          if engine_eligible?(config)
-            result[name] = config
+        Dir.chdir(filesystem.root) do
+          engines = engine_registry.list
+          @eligible_engines = engines.each_with_object({}) do |(name, config), result|
+            if engine_eligible?(config)
+              result[name] = config
+            end
           end
         end
       end
@@ -55,7 +57,7 @@ module CC
       end
 
       def engine_eligible?(engine)
-        !engine["community"] && engine["enable_regexps"].present? && files_exist?(engine)
+        !engine["community"] && engine["enable_patterns"].present? && files_exist?(engine)
       end
 
       def workspace
@@ -66,8 +68,8 @@ module CC
       end
 
       def files_exist?(engine)
-        workspace.any? do |path|
-          engine["enable_regexps"].any? { |re| Regexp.new(re).match(path.cleanpath.to_s) }
+        engine["enable_patterns"].any? do |pattern|
+          Dir.glob(pattern).any? { |path| workspace.include?(path) }
         end
       end
     end
