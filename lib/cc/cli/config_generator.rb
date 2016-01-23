@@ -60,6 +60,7 @@ module CC
 
       def workspace
         @workspace ||= CC::Workspace.new(CC::Workspace::PathTree.new(filesystem.root)).tap do |w|
+          w.remove([".git"])
           w.remove(exclude_paths)
         end
       end
