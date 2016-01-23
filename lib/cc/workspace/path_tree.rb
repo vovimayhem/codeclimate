@@ -29,8 +29,8 @@ module CC
         paths.each { |path| add(*normalized_path_pieces(path)) }
       end
 
-      def include?(path)
-        include_pieces?(*normalized_path_pieces(path))
+      def include?(path, populate_results = false)
+        include_pieces?(populate_results, *normalized_path_pieces(path))
       end
 
       def all_paths
@@ -71,14 +71,9 @@ module CC
       def include_pieces?(head = nil, *tail)
         return false if head.nil? && tail.empty?
 
-        child = if populated?
-          children[head]
-        else
-          c = find_direct_child(head)
-          self.class.create(c) if c
-        end
+        child = get_or_find_direct_child(head)
         if child.present? && tail.present?
-          child.include_pieces?(*tail)
+          child.include_pieces?(populate_results, *tail)
         else
           child.present?
         end
@@ -98,6 +93,15 @@ module CC
 
       def find_direct_child(name)
         Pathname.new(root_path).children.detect { |c| c.basename.to_s == name }
+      end
+
+      def get_or_find_direct_child(name)
+        if populated?
+          children[name]
+        else
+          c = find_direct_child(name)
+          self.class.create(c) if c.present?
+        end
       end
 
       def normalized_path_pieces(path)
@@ -123,6 +127,10 @@ module CC
 
         def add(*)
           # this space intentionally left blank
+        end
+
+        def include_pieces?(*)
+          false
         end
       end
     end

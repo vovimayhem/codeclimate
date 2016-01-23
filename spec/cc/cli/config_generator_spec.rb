@@ -55,6 +55,15 @@ module CC::CLI
         end
         generator.eligible_engines.must_equal expected_engines
       end
+
+      it "does not enable an engine if matching files are in exclude paths" do
+        make_tree <<-EOM
+          foo/thing.rb
+          node_modules/foo.js
+        EOM
+
+        generator.eligible_engines.keys.wont_include "eslint"
+      end
     end
 
     describe "#errors" do

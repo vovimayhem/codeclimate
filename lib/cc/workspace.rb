@@ -11,6 +11,10 @@ module CC
       self.class.new(path_tree.clone)
     end
 
+    def include?(path)
+      path_tree.include?(path)
+    end
+
     def paths
       path_tree.all_paths
     end
