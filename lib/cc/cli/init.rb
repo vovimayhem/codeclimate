@@ -32,8 +32,10 @@ module CC
           fatal "Cannot generate .codeclimate.yml: please address above errors."
         end
 
+        say "Generating .codeclimate.yml..."
         create_codeclimate_yaml
         success "Config file .codeclimate.yml successfully #{config_generator.post_generation_verb}.\nEdit and then try running 'validate-config' to check configuration."
+        say "Generating default configuration for engines..."
         create_default_configs
       end
 
