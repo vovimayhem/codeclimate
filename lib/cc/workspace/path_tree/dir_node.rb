@@ -2,13 +2,14 @@ module CC
   class Workspace
     class PathTree
       class DirNode
-        def initialize(root_path, children = {})
+        def initialize(root_path, children = {}, populated = false)
           @root_path = root_path.dup.freeze
           @children = children
+          @populated = populated
         end
 
         def clone
-          self.class.new(root_path, children.dup)
+          self.class.new(root_path, children.dup, populated)
         end
 
         def all_paths
@@ -20,7 +21,7 @@ module CC
         end
 
         def populated?
-          children.present?
+          populated
         end
 
         def remove(head = nil, *tail)
@@ -37,6 +38,7 @@ module CC
           return if head.nil? && tail.empty?
 
           if (entry = find_direct_child(head))
+            self.populated = true
             children[entry.basename.to_s] = PathTree.node_for_pathname(entry)
             children[entry.basename.to_s].add(*tail)
           else
@@ -47,9 +49,11 @@ module CC
         private
 
         attr_reader :children, :root_path
+        attr_accessor :populated
 
         def populate_direct_children
           return if populated?
+          self.populated = true
 
           Pathname.new(root_path).each_child do |child_path|
             children[child_path.basename.to_s] = PathTree.node_for_pathname(child_path)

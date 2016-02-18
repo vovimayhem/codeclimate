@@ -59,10 +59,14 @@ module CC::Analyzer
       let(:registry) { registry_with_engine("rubocop") }
 
       it "keeps that config and adds some entries" do
+        make_tree <<-EOM
+          app/thing.rb
+        EOM
+
         expected_config = {
           "enabled" => true,
           "config" => "rubocop.yml",
-          :include_paths => ["./"]
+          :include_paths => ["app/"]
         }
         result = engines_config_builder.run
         expect(result.size).to eq(1)

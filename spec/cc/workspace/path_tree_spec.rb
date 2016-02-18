@@ -55,6 +55,16 @@ class CC::Workspace
       end
     end
 
+    it "excludes everything and return an empty #all_paths" do
+      within_temp_dir do
+        make_fixture_tree
+
+        tree = PathTree.for_path(".")
+        tree.exclude_paths([".git", "code", "foo.txt", "lib"])
+        expect(tree.all_paths.sort).to eq []
+      end
+    end
+
     it "handles including nonexistent files" do
       within_temp_dir do
         make_fixture_tree
