@@ -11,7 +11,7 @@ module CC
       DEFAULT_MEMORY_LIMIT = 512_000_000.freeze
 
       def initialize(name, metadata, code_path, config, label)
-        @name = name
+        @name = name.gsub("/", "-")
         @metadata = metadata
         @code_path = code_path
         @config = config

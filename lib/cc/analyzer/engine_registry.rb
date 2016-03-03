@@ -1,38 +1,34 @@
-require "safe_yaml"
+require "net/http"
+require "uri"
 
 module CC
   module Analyzer
+    BASE_URL = URI.parse("http://10.10.9.130:3000/api/engines")
+
     class EngineRegistry
       def initialize(dev_mode = false)
-        @path = File.expand_path("../../../../config/engines.yml", __FILE__)
-        @config = YAML.safe_load_file(@path)
-        @dev_mode = dev_mode
       end
 
       def [](engine_name)
-        if dev_mode?
-          { "image" => "codeclimate/codeclimate-#{engine_name}:latest" }
-        else
-          @config[engine_name]
-        end
+        list[engine_name]
       end
 
-      def list
-        @config
+      def list(language: nil, tag: nil)
+        url = BASE_URL.dup
+        query = {}
+
+        query["language"] = language if language
+        query["tag"] = tag if tag
+        url.query = query.to_query
+
+        @list ||= JSON.parse(Net::HTTP.get(url))
       end
 
       def key?(engine_name)
-        return true if dev_mode?
         list.key?(engine_name)
       end
 
       alias_method :exists?, :key?
-
-      private
-
-      def dev_mode?
-        @dev_mode
-      end
     end
   end
 end
