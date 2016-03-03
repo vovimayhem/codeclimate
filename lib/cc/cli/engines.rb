@@ -3,6 +3,7 @@ require "cc/analyzer"
 module CC
   module CLI
     module Engines
+      autoload :Create, "cc/cli/engines/create"
       autoload :Disable, "cc/cli/engines/disable"
       autoload :Enable, "cc/cli/engines/enable"
       autoload :EngineCommand, "cc/cli/engines/engine_command"

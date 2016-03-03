@@ -11,7 +11,7 @@ module CC
       DEFAULT_MEMORY_LIMIT = 512_000_000.freeze
 
       def initialize(name, metadata, code_path, config, label)
-        @name = name.gsub("/", "-")
+        @name = name
         @metadata = metadata
         @code_path = code_path
         @config = config
@@ -64,7 +64,7 @@ module CC
       end
 
       def container_name
-        @container_name ||= "cc-engines-#{name}-#{SecureRandom.uuid}"
+        @container_name ||= "cc-engines-#{name.gsub("/", "-")}-#{SecureRandom.uuid}"
       end
 
       def write_config_file

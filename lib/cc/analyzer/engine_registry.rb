@@ -27,8 +27,12 @@ module CC
       def key?(engine_name)
         list.key?(engine_name)
       end
-
       alias_method :exists?, :key?
+
+      def create(attributes)
+        res = Net::HTTP.post_form(BASE_URL, attributes)
+        res.is_a?(Net::HTTPSuccess)
+      end
     end
   end
 end
