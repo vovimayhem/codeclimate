@@ -37,6 +37,10 @@ module CC
         fatal("No enabled engines. Add some to your .codeclimate.yml file!")
       end
 
+      def owns_stdout?
+        !formatter.is_a?(Formatters::PlainTextFormatter)
+      end
+
       private
 
       attr_accessor :config

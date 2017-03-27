@@ -9,6 +9,10 @@ module CC
       VERSION_CHECK_TIMEOUT = 60 * 60 # 1 Hour in seconds
       DEFAULT_VERSIONS_URL = "https://versions.codeclimate.com".freeze
 
+      def initialize(command = nil)
+        @command = command
+      end
+
       def check
         return unless global_config.check_version?
 
@@ -20,6 +24,8 @@ module CC
       end
 
       private
+
+      attr_reader :command
 
       def version_check_is_due?
         Time.now > global_cache.last_version_check + VERSION_CHECK_TIMEOUT
@@ -42,7 +48,9 @@ module CC
       end
 
       def print_new_version_message
-        warn "A new version (v#{latest_version}) is available"
+        unless command.owns_stdout?
+          warn "A new version (v#{latest_version}) is available"
+        end
       end
 
       def api_response

@@ -73,6 +73,10 @@ module CC
         run
       end
 
+      def owns_stdout?
+        false
+      end
+
       def require_codeclimate_yml
         unless filesystem.exist?(CODECLIMATE_YAML)
           fatal("No '.codeclimate.yml' file found. Run 'codeclimate init' to generate a config file.")

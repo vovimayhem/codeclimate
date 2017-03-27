@@ -9,6 +9,10 @@ module CC
         terminal.say message
       end
 
+      def gently_warn(message)
+        terminal.say colorize("WARNING: #{message}", :yellow)
+      end
+
       def warn(message)
         terminal.say colorize("WARNING: #{message}", :yellow)
       end

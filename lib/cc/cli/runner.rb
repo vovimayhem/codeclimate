@@ -18,12 +18,12 @@ module CC
       end
 
       def run
-        VersionChecker.new.check if check_version?
-
         if command_class
           command = command_class.new(command_arguments)
+          VersionChecker.new(command).check if check_version?
           command.execute
         else
+          VersionChecker.new.check if check_version?
           command_not_found
         end
       end
