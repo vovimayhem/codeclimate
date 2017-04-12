@@ -20,23 +20,26 @@ module CC
         @path_options = []
 
         process_args
-        apply_config_options
       end
 
       def run
-        require_codeclimate_yml
+        formatter.started
 
         Dir.chdir(MountedPath.code.container_path) do
-          runner = EnginesRunner.new(registry, formatter, source_dir, config, path_options)
-          runner.run
+          engines.each do |engine|
+            formatter.engine_running(engine) do
+              run_engine(engine)
+            end
+          end
         end
-      rescue EnginesRunner::NoEnabledEngines
-        fatal("No enabled engines. Add some to your .codeclimate.yml file!")
+
+        formatter.finished
+      ensure
+        formatter.close if formatter.respond_to?(:close)
       end
 
       private
 
-      attr_accessor :config
       attr_reader :engine_options, :path_options
 
       def process_args
@@ -56,50 +59,41 @@ module CC
         fatal(e.message)
       end
 
-      def registry
-        EngineRegistry.new(@dev_mode)
+      def engines
+        if @engine_options.present?
+          raise ArgumentError, "-e not supported at the moment"
+        else
+          CLI.config.engines
+        end
+      end
+
+      def run_engine(engine)
+        engine_details = CLI.registry.fetch_engine_details(engine, development: @dev_mode)
+        runnable_engine = CC::Analyzer::Engine.new(
+          engine.name,
+          {
+            "image" => engine_details.image,
+            "command" => engine_details.command,
+          },
+          engine.to_config_json.merge(
+            include_paths: workspace.paths,
+          ),
+          engine.container_label,
+        )
+
+        runnable_engine.run(formatter, ContainerListener.new)
       end
 
       def formatter
         @formatter ||= Formatters::PlainTextFormatter.new(filesystem)
       end
 
-      def source_dir
-        MountedPath.code.host_path
-      end
-
-      def config
-        @config ||= CC::Yaml.parse(filesystem.read_path(CODECLIMATE_YAML))
-      end
-
-      def apply_config_options
-        if engine_options.any? && config.engines?
-          filter_by_engine_options
-        elsif engine_options.any?
-          config["engines"] = CC::Yaml::Nodes::EngineList.new(config).with_value({})
-        end
-        add_engine_options
-      end
-
-      def filter_by_engine_options
-        config.engines.keys.each do |engine|
-          unless engine_options.include?(engine)
-            config.engines.delete(engine)
-          end
-        end
-      end
-
-      def add_engine_options
-        engine_options.each do |engine|
-          name, channel = engine.split(":", 2)
-
-          if config.engines.include?(engine)
-            config.engines[name].enabled = true
-            config.engines[name].channel = channel if channel
-          else
-            value = { "enabled" => true }
-            value["channel"] = channel if channel
-            config.engines[name] = CC::Yaml::Nodes::Engine.new(config.engines).with_value(value)
+      def workspace
+        @workspace ||= Workspace.new.tap do |workspace|
+          workspace.add(@path_options)
+          unless @path_options.present?
+            workspace.remove([".git"])
+            workspace.remove(CLI.config.exclude_patterns)
           end
         end
       end

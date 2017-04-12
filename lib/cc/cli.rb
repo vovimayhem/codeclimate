@@ -2,6 +2,8 @@ require "active_support"
 require "active_support/core_ext"
 require "yaml"
 require "cc/analyzer"
+require "cc/config"
+require "cc/engine_registry"
 require "cc/workspace"
 require "cc/yaml"
 
@@ -31,6 +33,14 @@ module CC
 
         $stderr.puts("[DEBUG] #{message}")
       end
+    end
+
+    def self.registry
+      @registry ||= CC::EngineRegistry.new
+    end
+
+    def self.config
+      @config ||= CC::Config::Default.new
     end
   end
 end
