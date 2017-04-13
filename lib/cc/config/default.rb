@@ -1,22 +1,34 @@
 module CC
   module Config
     class Default
+      EXCLUDE_PATTERNS = %w[
+        config/
+        db/
+        dist/
+        features/
+        node_modules/
+        script/
+        spec/
+        test/
+        tests/
+        vendor/
+      ]
+
       attr_reader :engines, :exclude_patterns
+      attr_writer :development
 
       def initialize
+        @development = false
         @engines = [structure_engine, duplication_engine]
-        @exclude_patterns = %w[
-          config/
-          db/
-          dist/
-          features/
-          node_modules/
-          script/
-          spec/
-          test/
-          tests/
-          vendor/
-        ]
+        @exclude_patterns = EXCLUDE_PATTERNS
+      end
+
+      def analysis_paths
+        @analysis_paths ||= []
+      end
+
+      def development?
+        @development
       end
 
       private

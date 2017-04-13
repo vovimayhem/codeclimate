@@ -16,86 +16,48 @@ module CC
 
       def initialize(_args = [])
         super
-        @engine_options = []
-        @path_options = []
+
+        @config = Config::Default.new
+        @listener = ContainerListener.new
+        @registry = EngineRegistry.new
 
         process_args
       end
 
       def run
-        formatter.started
+        bridge = Bridge.new(
+          config: config,
+          formatter: formatter,
+          listener: listener,
+          registry: registry,
+        )
 
-        Dir.chdir(MountedPath.code.container_path) do
-          engines.each do |engine|
-            formatter.engine_running(engine) do
-              run_engine(engine)
-            end
-          end
-        end
-
-        formatter.finished
-      ensure
-        formatter.close if formatter.respond_to?(:close)
+        Dir.chdir(MountedPath.code.container_path) { bridge.run }
       end
 
       private
 
-      attr_reader :engine_options, :path_options
+      attr_reader :config, :listener, :registry
 
       def process_args
         while (arg = @args.shift)
           case arg
           when "-f"
             @formatter = Formatters.resolve(@args.shift).new(filesystem)
-          when "-e", "--engine"
-            @engine_options << @args.shift
+          # when "-e", "--engine"
+          #   @engine_options << @args.shift
           when "--dev"
-            @dev_mode = true
+            config.development = true
           else
-            @path_options << arg
+            config.analysis_paths << arg
           end
         end
-      rescue Formatters::Formatter::InvalidFormatterError => e
+      rescue Formatters::Formatter::InvalidFormatterError => ex
         fatal(e.message)
-      end
-
-      def engines
-        if @engine_options.present?
-          raise ArgumentError, "-e not supported at the moment"
-        else
-          CLI.config.engines
-        end
-      end
-
-      def run_engine(engine)
-        engine_details = CLI.registry.fetch_engine_details(engine, development: @dev_mode)
-        runnable_engine = CC::Analyzer::Engine.new(
-          engine.name,
-          {
-            "image" => engine_details.image,
-            "command" => engine_details.command,
-          },
-          engine.to_config_json.merge(
-            include_paths: workspace.paths,
-          ),
-          engine.container_label,
-        )
-
-        runnable_engine.run(formatter, ContainerListener.new)
       end
 
       def formatter
         @formatter ||= Formatters::PlainTextFormatter.new(filesystem)
-      end
-
-      def workspace
-        @workspace ||= Workspace.new.tap do |workspace|
-          workspace.add(@path_options)
-          unless @path_options.present?
-            workspace.remove([".git"])
-            workspace.remove(CLI.config.exclude_patterns)
-          end
-        end
       end
     end
   end
