@@ -6,9 +6,16 @@ module CC
       def initialize
         @engines = [structure_engine, duplication_engine]
         @exclude_patterns = %w[
-          spec/**/*
-          test/**/*
-          vendor/**/*
+          config/
+          db/
+          dist/
+          features/
+          node_modules/
+          script/
+          spec/
+          test/
+          tests/
+          vendor/
         ]
       end
 
@@ -28,7 +35,7 @@ module CC
           enabled: true,
           channel: "cronopio",
           config: {
-            languages: %w[ruby javascript],
+            languages: %w[ruby],
           },
         )
       end
